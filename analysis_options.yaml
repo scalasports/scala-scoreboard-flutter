@@ -8,7 +8,7 @@ linter:
     public_member_api_docs: false
     lines_longer_than_80_chars: false
     no_default_cases: false
-    omit_local_variable_types: true
+    omit_local_variable_types: false
     avoid_types_on_closure_parameters: true
     prefer_relative_imports: true
     always_use_package_imports: false
