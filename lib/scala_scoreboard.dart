@@ -1,0 +1,2 @@
+library scala_scoreboard;
+
