@@ -16,60 +16,46 @@ class InternalTable extends MultiChildRenderObjectWidget {
   const InternalTable({
     super.key,
     required this.outerConstraints,
-    Color? leftSectionBackgroundColor,
-    Color? rightSectionBackgroundColor,
-    Color? rightSectionBackgroundColorWhenScrolled,
-    Color? shadowColorWhenScrolled,
-    this.applyShadowWhenScrolled = true,
-    this.shadowBlurWhenScrolled = 1.0,
-    this.dividerWidth = 1.0,
-    this.dividerColor = const Color.fromRGBO(230, 230, 230, 1),
-    this.skipDividerForHeader = false,
+    required this.leftSectionBackgroundColor,
+    required this.rightSectionBackgroundColor,
+    required this.rightSectionBackgroundColorWhenScrolled,
+    required this.shadowColorWhenScrolled,
+    required this.applyShadowWhenScrolled,
+    required this.shadowBlurWhenScrolled,
+    required this.dividerWidth,
+    required this.dividerColor,
+    required this.skipDividerForHeader,
     super.children,
-  })  : leftSectionBackgroundColor = leftSectionBackgroundColor ?? Colors.white,
-        rightSectionBackgroundColor = rightSectionBackgroundColor ?? Colors.white,
-        rightSectionBackgroundColorWhenScrolled =
-            rightSectionBackgroundColorWhenScrolled ?? rightSectionBackgroundColor ?? Colors.white,
-        shadowColorWhenScrolled = shadowColorWhenScrolled ?? const Color.fromRGBO(245, 245, 245, 1);
+  });
 
-  /// The constraints of the box where the scrollview is drawn in.
-  /// Required field.
+  /// {@macro scala_scoreboard.Scoreboard.outerConstraints}
   final BoxConstraints outerConstraints;
 
-  /// Background color for the left section (e.g., definition column, ranking column).
-  /// Defaults to [Colors.white] if not specified.
+  /// {@macro scala_scoreboard.Scoreboard.leftSectionBackgroundColor}
   final Color leftSectionBackgroundColor;
 
-  /// Background color for the right section (e.g., data columns).
-  /// Defaults to [Colors.white] if not specified.
+  /// {@macro scala_scoreboard.Scoreboard.rightSectionBackgroundColor}
   final Color rightSectionBackgroundColor;
 
-  /// Background color for the right section when scrolled.
-  /// Defaults to [rightSectionBackgroundColor] if not specified.
+  /// {@macro scala_scoreboard.Scoreboard.rightSectionBackgroundColorWhenScrolled}
   final Color rightSectionBackgroundColorWhenScrolled;
 
-  /// Determines whether the shadow is applied when the section is scrolled.
-  /// Defaults to `true`.
+  /// {@macro scala_scoreboard.Scoreboard.applyShadowWhenScrolled}
   final bool applyShadowWhenScrolled;
 
-  /// Color of the shadow applied when scrolled.
-  /// Defaults to [Color.fromRGBO(245, 245, 245, 1)] if not specified.
+  /// {@macro scala_scoreboard.Scoreboard.shadowColorWhenScrolled}
   final Color shadowColorWhenScrolled;
 
-  /// Blur radius for the shadow when scrolled.
-  /// Defaults to `1.0`.
+  /// {@macro scala_scoreboard.Scoreboard.shadowBlurWhenScrolled}
   final double shadowBlurWhenScrolled;
 
-  /// Width of the dividers between rows.
-  /// Defaults to `1.0`.
+  /// {@macro scala_scoreboard.Scoreboard.dividerWidth}
   final double dividerWidth;
 
-  /// Color of the divider between the rows.
-  /// Defaults to [Color.fromRGBO(230, 230, 230, 1)] if not specified.
+  /// {@macro scala_scoreboard.Scoreboard.dividerColor}
   final Color dividerColor;
 
-  /// Determines whether to skip the divider for the header row.
-  /// Defaults to `false`.
+  /// {@macro scala_scoreboard.Scoreboard.skipDividerForHeader}
   final bool skipDividerForHeader;
 
   @override
@@ -97,7 +83,10 @@ class InternalTable extends MultiChildRenderObjectWidget {
       ..rightSectionBackgroundColorWhenScrolled = rightSectionBackgroundColorWhenScrolled
       ..applyShadowWhenScrolled = applyShadowWhenScrolled
       ..shadowColorWhenScrolled = shadowColorWhenScrolled
-      ..shadowBlurWhenScrolled = shadowBlurWhenScrolled;
+      ..shadowBlurWhenScrolled = shadowBlurWhenScrolled
+      ..dividerWidth = dividerWidth
+      ..dividerColor = dividerColor
+      ..skipDividerForHeader = skipDividerForHeader;
     super.updateRenderObject(context, renderObject);
   }
 }
@@ -110,7 +99,6 @@ class InternalTableRenderBox extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, ContainerBoxParentData<RenderBox>>,
         RenderBoxContainerDefaultsMixin<RenderBox, ContainerBoxParentData<RenderBox>> {
-
   /// Creates an [InternalTableRenderBox] with specified configuration options for
   /// background colors, shadow effects, and divider appearance.
   ///
@@ -292,7 +280,10 @@ class InternalTableRenderBox extends RenderBox
 
         child.layout(
           constraints.copyWith(
-              maxWidth: width != null ? max(width, maxWidth) : maxWidth, minWidth: width, minHeight: height),
+            maxWidth: width != null ? max(width, maxWidth) : maxWidth,
+            minWidth: width,
+            minHeight: height,
+          ),
           parentUsesSize: true,
         );
       } else {
@@ -429,7 +420,7 @@ class InternalTableRenderBox extends RenderBox
     // The width should always be at least the width of the [outerConstraints].
     size = previousChild != null
         ? Size(
-            max(startOffset.dx + previousChild.size.width, _outerConstraints.maxWidth ?? 0),
+            max(startOffset.dx + previousChild.size.width, _outerConstraints.maxWidth),
             startOffset.dy + previousChild.size.height,
           )
         : Size.zero;

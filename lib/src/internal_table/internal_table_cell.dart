@@ -7,15 +7,14 @@ import 'internal_table.dart';
 /// Enum representing the type of internal table cells (ranking, definition, data)
 /// {@endtemplate}
 enum InternalTableCellType {
-  ranking,   // Represents a ranking cell in the table.
+  ranking, // Represents a ranking cell in the table.
   definition, // Represents a definition cell in the table, e.g. player name or club name.
-  data,      // Represents a data cell in the table, the scrollable parts.
+  data, // Represents a data cell in the table, the scrollable parts.
 }
 
 /// Custom parent data class for the internal table cells, extending the
 /// ContainerBoxParentData for layout management.
-class InternalTableCellParentData extends ContainerBoxParentData<RenderBox>
-    with ContainerParentDataMixin<RenderBox> {
+class InternalTableCellParentData extends ContainerBoxParentData<RenderBox> with ContainerParentDataMixin<RenderBox> {
   /// {@macro scala_scoreboard.InternalTableCellType}
   InternalTableCellType? cellType;
 
@@ -28,7 +27,8 @@ class InternalTableCellParentData extends ContainerBoxParentData<RenderBox>
 /// A widget that provides a parent data class for internal table cells.
 class InternalTableCell extends ParentDataWidget<InternalTableCellParentData> {
   /// Creates an instance of [InternalTableCell].
-  const InternalTableCell._({
+  const InternalTableCell({
+    super.key,
     required this.rowIndex,
     required this.cellType,
     required super.child,
