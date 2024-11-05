@@ -95,5 +95,10 @@ class ScoreboardRow extends ScoreboardElement {
     required super.position,
     required super.title,
     required super.dataColumns,
+    this.isSelected = false,
   });
+
+  /// Whether the row should appear as selected.
+  /// Only one [isSelected] row can exist in a scoreboard.
+  final bool isSelected;
 }

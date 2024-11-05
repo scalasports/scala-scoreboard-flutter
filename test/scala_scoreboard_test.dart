@@ -117,6 +117,7 @@ class TestScoreboardState extends State<TestScoreboard> {
       ],
     ),
     ScoreboardRow(
+      isSelected: true,
       position: ScoreboardPositionCell(trendMode: ScoreboardTrendMode.up, child: Text('4')),
       title: ScoreboardTitleCell(
         leading: LogoGroup(
@@ -315,7 +316,6 @@ class TestScoreboardState extends State<TestScoreboard> {
     );
   }
 }
-
 
 void main() {
   late GlobalKey<TestScoreboardState> testScoreboardKey;
@@ -539,6 +539,4 @@ void main() {
       await screenMatchesGolden(tester, 'scala_scoreboard_scrolled');
     });
   });
-
 }
-

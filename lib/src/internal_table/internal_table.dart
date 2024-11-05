@@ -25,6 +25,8 @@ class InternalTable extends MultiChildRenderObjectWidget {
     required this.dividerWidth,
     required this.dividerColor,
     required this.skipDividerForHeader,
+    required this.selectedRowIndex,
+    required this.selectedRowColor,
     super.children,
   });
 
@@ -58,6 +60,15 @@ class InternalTable extends MultiChildRenderObjectWidget {
   /// {@macro scala_scoreboard.Scoreboard.skipDividerForHeader}
   final bool skipDividerForHeader;
 
+  /// {@template scala_scoreboard.Scoreboard.selectedRowIndex}
+  /// Determines which row should appear as selected.
+  /// Defaults to null.
+  /// {@endtemplate}
+  final int? selectedRowIndex;
+
+  /// {@macro scala_scoreboard.Scoreboard.selectedRowColor}
+  final Color selectedRowColor;
+
   @override
   InternalTableRenderBox createRenderObject(BuildContext context) {
     return InternalTableRenderBox(
@@ -70,7 +81,9 @@ class InternalTable extends MultiChildRenderObjectWidget {
       shadowBlurWhenScrolled: shadowBlurWhenScrolled,
       dividerWidth: dividerWidth,
       dividerColor: dividerColor,
+      selectedRowColor: selectedRowColor,
       skipDividerForHeader: skipDividerForHeader,
+      selectedRowIndex: selectedRowIndex,
     );
   }
 
@@ -86,7 +99,9 @@ class InternalTable extends MultiChildRenderObjectWidget {
       ..shadowBlurWhenScrolled = shadowBlurWhenScrolled
       ..dividerWidth = dividerWidth
       ..dividerColor = dividerColor
-      ..skipDividerForHeader = skipDividerForHeader;
+      ..skipDividerForHeader = skipDividerForHeader
+      ..selectedRowIndex = selectedRowIndex
+      ..selectedRowColor = selectedRowColor;
     super.updateRenderObject(context, renderObject);
   }
 }
@@ -118,7 +133,9 @@ class InternalTableRenderBox extends RenderBox
     required double shadowBlurWhenScrolled,
     required double dividerWidth,
     required Color dividerColor,
+    required Color selectedRowColor,
     required bool skipDividerForHeader,
+    int? selectedRowIndex,
   })  : _outerConstraints = outerConstraints,
         _leftSectionBackgroundColor = leftSectionBackgroundColor,
         _rightSectionBackgroundColor = rightSectionBackgroundColor,
@@ -128,7 +145,9 @@ class InternalTableRenderBox extends RenderBox
         _shadowBlurWhenScrolled = shadowBlurWhenScrolled,
         _dividerWidth = dividerWidth,
         _dividerColor = dividerColor,
-        _skipDividerForHeader = skipDividerForHeader;
+        _skipDividerForHeader = skipDividerForHeader,
+        _selectedRowIndex = selectedRowIndex,
+        _selectedRowColor = selectedRowColor;
 
   late InternalTableSizeManager _tableSizeManager;
 
@@ -240,6 +259,27 @@ class InternalTableRenderBox extends RenderBox
   set skipDividerForHeader(bool value) {
     if (_skipDividerForHeader == value) return;
     _skipDividerForHeader = value;
+    markNeedsPaint();
+  }
+
+  /// Gets the selected row index if any.
+  int? get selectedRowIndex => _selectedRowIndex;
+  int? _selectedRowIndex;
+
+  /// Sets the selected row index.
+  set selectedRowIndex(int? value) {
+    if (_selectedRowIndex == value) return;
+    _selectedRowIndex = value;
+    markNeedsPaint();
+  }
+
+  /// Gets the selected row color.
+  Color _selectedRowColor;
+  Color get selectedRowColor => _selectedRowColor;
+
+  set selectedRowColor(Color value) {
+    if (_selectedRowColor == value) return;
+    _selectedRowColor = value;
     markNeedsPaint();
   }
 
@@ -476,10 +516,29 @@ class InternalTableRenderBox extends RenderBox
         Paint()..color = isScrolled ? _rightSectionBackgroundColorWhenScrolled : _rightSectionBackgroundColor,
       );
 
+      // We only want to paint the selected background once.
+      bool didPaintSelected = false;
+
       // Now draw the data cells on this background.
       // This should be done after the background drawing since their z-index is higher.
       for (final child in rightChildren) {
         final childParentData = child.parentData! as InternalTableCellParentData;
+        final rowIndex = childParentData.rowIndex;
+        final isSelectedRow = rowIndex == _selectedRowIndex;
+
+        if (isSelectedRow && !didPaintSelected && rowIndex != null) {
+          context.canvas.drawRect(
+            Rect.fromLTWH(
+              0,
+              childParentData.offset.dy,
+              size.width,
+              _tableSizeManager.rowHeightForIndex(rowIndex),
+            ),
+            Paint()..color = _selectedRowColor,
+          );
+
+          didPaintSelected = true;
+        }
 
         // Note that we use the offset for the scrolling here.
         context.paintChild(child, offset + childParentData.offset);
@@ -506,9 +565,28 @@ class InternalTableRenderBox extends RenderBox
         Paint()..color = _leftSectionBackgroundColor,
       );
 
+      // We only want to paint the selected background once.
+      bool didPaintSelected = false;
+
       // Consequently, draw the children.
       for (final child in leftChildren) {
         final childParentData = child.parentData! as InternalTableCellParentData;
+        final rowIndex = childParentData.rowIndex;
+        final isSelectedRow = rowIndex == _selectedRowIndex;
+
+        if (isSelectedRow && !didPaintSelected && rowIndex != null) {
+          context.canvas.drawRect(
+            Rect.fromLTWH(
+              0,
+              childParentData.offset.dy,
+              rect.width,
+              _tableSizeManager.rowHeightForIndex(rowIndex),
+            ),
+            Paint()..color = const Color.fromRGBO(247, 248, 250, 1),
+          );
+
+          didPaintSelected = true;
+        }
 
         // Note that we don't use the offset for the scrolling here.
         context.paintChild(child, childParentData.offset);

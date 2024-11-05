@@ -94,6 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   ScoreboardRow(
+                    isSelected: true,
                     position: const ScoreboardPositionCell(trendMode: ScoreboardTrendMode.down, child: Text('2')),
                     title: ScoreboardTitleCell(
                       leading: LogoGroup.withImageUrls(
