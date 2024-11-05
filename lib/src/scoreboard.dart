@@ -25,6 +25,7 @@ class Scoreboard extends StatelessWidget {
     this.dividerColor = const Color.fromRGBO(230, 230, 230, 1),
     this.skipDividerForHeader = false,
     this.decoration,
+    this.selectedRowColor = const Color.fromRGBO(247, 248, 250, 1),
     super.key,
   });
 
@@ -90,6 +91,12 @@ class Scoreboard extends StatelessWidget {
   /// {@endtemplate}
   final bool skipDividerForHeader;
 
+  /// {@template scala_scoreboard.Scoreboard.selectedRowColor}
+  /// The color of the selected row.
+  /// Defaults to [Color.fromRGBO(247, 248, 250, 1)].
+  /// {@endtemplate}
+  final Color selectedRowColor;
+
   /// The decoration that may be applied on the container of the scoreboard.
   /// If null, a [BoxDecoration] with `borderRadius` set to 12 will be used.
   final BoxDecoration? decoration;
@@ -103,10 +110,18 @@ class Scoreboard extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           // Combine the header and rows into a single list of table cells.
-          final cells = [
-            ...header.toInternalCells(rowIndex: 0),
-            for (var index = 0; index < rows.length; index++) ...rows[index].toInternalCells(rowIndex: index + 1),
-          ];
+          final cells = [...header.toInternalCells(rowIndex: 0)];
+
+          int? selectedRowIndex;
+
+          for (var index = 0; index < rows.length; index++) {
+            final row = rows[index];
+
+            // Real position is index + 1 since we have the header cells.
+            final position = index + 1;
+            if (row.isSelected) selectedRowIndex = position;
+            cells.addAll(rows[index].toInternalCells(rowIndex: position));
+          }
 
           // Make the right side scrollable.
           return SingleChildScrollView(
@@ -123,6 +138,8 @@ class Scoreboard extends StatelessWidget {
               dividerWidth: dividerWidth,
               dividerColor: dividerColor,
               skipDividerForHeader: skipDividerForHeader,
+              selectedRowColor: selectedRowColor,
+              selectedRowIndex: selectedRowIndex,
               children: cells,
             ),
           );
