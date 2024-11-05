@@ -476,10 +476,29 @@ class InternalTableRenderBox extends RenderBox
         Paint()..color = isScrolled ? _rightSectionBackgroundColorWhenScrolled : _rightSectionBackgroundColor,
       );
 
+      // We only want to paint the selected background once.
+      bool didPaintSelected = false;
+
       // Now draw the data cells on this background.
       // This should be done after the background drawing since their z-index is higher.
       for (final child in rightChildren) {
         final childParentData = child.parentData! as InternalTableCellParentData;
+        final rowIndex = childParentData.rowIndex;
+        final isSelectedRow = rowIndex == 3; // TODO(LennardDeurman): 1. Make this a method that can be passed. 
+
+        if (isSelectedRow && !didPaintSelected && rowIndex != null) {
+          context.canvas.drawRect(
+            Rect.fromLTWH(
+              0,
+              childParentData.offset.dy,
+              size.width,
+              _tableSizeManager.rowHeightForIndex(rowIndex),
+            ),
+            Paint()..color = const Color.fromRGBO(247, 248, 250, 1), // TODO(LennardDeurman): Create a property selectedRowColor.
+          );
+
+          didPaintSelected = true;
+        }
 
         // Note that we use the offset for the scrolling here.
         context.paintChild(child, offset + childParentData.offset);
@@ -506,9 +525,28 @@ class InternalTableRenderBox extends RenderBox
         Paint()..color = _leftSectionBackgroundColor,
       );
 
+      // We only want to paint the selected background once.
+      bool didPaintSelected = false;
+
       // Consequently, draw the children.
       for (final child in leftChildren) {
         final childParentData = child.parentData! as InternalTableCellParentData;
+        final rowIndex = childParentData.rowIndex;
+        final isSelectedRow = rowIndex == 3;
+
+        if (isSelectedRow && !didPaintSelected && rowIndex != null) {
+          context.canvas.drawRect(
+            Rect.fromLTWH(
+              0,
+              childParentData.offset.dy,
+              rect.width,
+              _tableSizeManager.rowHeightForIndex(rowIndex),
+            ),
+            Paint()..color = const Color.fromRGBO(247, 248, 250, 1),
+          );
+
+          didPaintSelected = true;
+        }
 
         // Note that we don't use the offset for the scrolling here.
         context.paintChild(child, childParentData.offset);
