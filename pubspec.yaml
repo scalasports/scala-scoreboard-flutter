@@ -1,7 +1,7 @@
 name: scala_scoreboard
 description: "A Flutter package for showing a Google-like standings / scoreboard widget."
 version: 0.0.2
-publish_to: none
+repository: https://github.com/scalasports/scala-scoreboard-flutter
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
