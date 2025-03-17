@@ -635,4 +635,43 @@ class InternalTableRenderBox extends RenderBox
     // Finally, draw the dividers.
     drawDividers();
   }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    final initialRowHeight = _tableSizeManager.rowHeightForIndex(0);
+
+    Rect currentRect = Rect.fromLTWH(
+      0,
+      initialRowHeight,
+      _outerConstraints.maxWidth,
+      _tableSizeManager.rowHeightForIndex(0),
+    );
+
+    int rowIndex = 0;
+
+    void nextRow() {
+      currentRect = Rect.fromLTWH(
+        0,
+        currentRect.bottom,
+        _outerConstraints.maxWidth,
+        _tableSizeManager.rowHeightForIndex(rowIndex),
+      );
+      rowIndex++;
+    }
+
+    int? tappedRowIndex;
+
+    while (tappedRowIndex == null && rowIndex < _tableSizeManager.numberOfRows) {
+      tappedRowIndex = currentRect.contains(position) ? rowIndex : null;
+
+      // Go to the next row and determine the rect.
+      nextRow();
+    }
+
+    if (tappedRowIndex != null) {
+      // TODO(LennardDeurman): Handle row tap.
+    }
+
+    return false;
+  }
 }
