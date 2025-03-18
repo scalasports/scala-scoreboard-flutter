@@ -420,10 +420,15 @@ class InternalTableRenderBox extends RenderBox
     startOffset = Offset.zero;
     currentColumnIndex = 0;
 
+    // If the sum of the column widths is smaller than the constrains.maxWidth we should allocate the difference extra space
+    // inside the player rows, we will call this the `underflow`.
+    final underflow = max(_outerConstraints.maxWidth - sizeManager.totalColumnWidth, 0);
+
     while (child != null) {
       final childParentData = child.parentData! as InternalTableCellParentData;
       final previousRowIndex = (previousChild?.parentData as InternalTableCellParentData?)?.rowIndex;
       final currentRowIndex = childParentData.rowIndex!;
+      final cellType = childParentData.cellType!;
 
       // Update the column index if necessary.
       updateColumnIndex(
@@ -431,11 +436,15 @@ class InternalTableRenderBox extends RenderBox
         currentRowIndex: currentRowIndex,
       );
 
+      // If the cellType is definition, we want to give back the underflow to the definition column.
+      var columnWidth = sizeManager.columnWidthForIndex(currentColumnIndex);
+      if (cellType == InternalTableCellType.definition) columnWidth += underflow;
+
       // Layout the cell in the UI, but this time with the width and height that are now known.
       layoutCell(
         child: child,
         cellType: childParentData.cellType!,
-        width: sizeManager.columnWidthForIndex(currentColumnIndex),
+        width: columnWidth,
         height: sizeManager.rowHeightForIndex(currentRowIndex),
       );
 
@@ -634,44 +643,5 @@ class InternalTableRenderBox extends RenderBox
 
     // Finally, draw the dividers.
     drawDividers();
-  }
-
-  @override
-  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    final initialRowHeight = _tableSizeManager.rowHeightForIndex(0);
-
-    Rect currentRect = Rect.fromLTWH(
-      0,
-      initialRowHeight,
-      _outerConstraints.maxWidth,
-      _tableSizeManager.rowHeightForIndex(0),
-    );
-
-    int rowIndex = 0;
-
-    void nextRow() {
-      currentRect = Rect.fromLTWH(
-        0,
-        currentRect.bottom,
-        _outerConstraints.maxWidth,
-        _tableSizeManager.rowHeightForIndex(rowIndex),
-      );
-      rowIndex++;
-    }
-
-    int? tappedRowIndex;
-
-    while (tappedRowIndex == null && rowIndex < _tableSizeManager.numberOfRows) {
-      tappedRowIndex = currentRect.contains(position) ? rowIndex : null;
-
-      // Go to the next row and determine the rect.
-      nextRow();
-    }
-
-    if (tappedRowIndex != null) {
-      // TODO(LennardDeurman): Handle row tap.
-    }
-
-    return false;
   }
 }

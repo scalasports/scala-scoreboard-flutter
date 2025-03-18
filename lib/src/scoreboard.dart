@@ -311,13 +311,15 @@ class ScoreboardTitleCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScoreboardCell(
       padding: padding,
+      shouldCenter: false,
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           if (leading != null) ...[
             leading!,
             SizedBox(width: spacing),
           ],
-          Expanded(
+          Flexible(
             child: DefaultTextStyle(
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
