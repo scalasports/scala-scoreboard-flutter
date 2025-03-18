@@ -27,6 +27,7 @@ class InternalTable extends MultiChildRenderObjectWidget {
     required this.skipDividerForHeader,
     required this.selectedRowIndex,
     required this.selectedRowColor,
+    required this.applyVerticalDivider,
     super.children,
   });
 
@@ -69,6 +70,11 @@ class InternalTable extends MultiChildRenderObjectWidget {
   /// {@macro scala_scoreboard.Scoreboard.selectedRowColor}
   final Color selectedRowColor;
 
+  /// {@template scala_scoreboard.Scoreboard.applyVerticalDivider}
+  /// Whether we should add a divider between the data column and definition.
+  /// {@endtemplate}
+  final bool applyVerticalDivider;
+
   @override
   InternalTableRenderBox createRenderObject(BuildContext context) {
     return InternalTableRenderBox(
@@ -84,6 +90,7 @@ class InternalTable extends MultiChildRenderObjectWidget {
       selectedRowColor: selectedRowColor,
       skipDividerForHeader: skipDividerForHeader,
       selectedRowIndex: selectedRowIndex,
+      applyVerticalDivider: applyVerticalDivider,
     );
   }
 
@@ -101,7 +108,8 @@ class InternalTable extends MultiChildRenderObjectWidget {
       ..dividerColor = dividerColor
       ..skipDividerForHeader = skipDividerForHeader
       ..selectedRowIndex = selectedRowIndex
-      ..selectedRowColor = selectedRowColor;
+      ..selectedRowColor = selectedRowColor
+      ..applyVerticalDivider = applyVerticalDivider;
     super.updateRenderObject(context, renderObject);
   }
 }
@@ -136,6 +144,7 @@ class InternalTableRenderBox extends RenderBox
     required Color selectedRowColor,
     required bool skipDividerForHeader,
     int? selectedRowIndex,
+    required bool applyVerticalDivider,
   })  : _outerConstraints = outerConstraints,
         _leftSectionBackgroundColor = leftSectionBackgroundColor,
         _rightSectionBackgroundColor = rightSectionBackgroundColor,
@@ -147,7 +156,8 @@ class InternalTableRenderBox extends RenderBox
         _dividerColor = dividerColor,
         _skipDividerForHeader = skipDividerForHeader,
         _selectedRowIndex = selectedRowIndex,
-        _selectedRowColor = selectedRowColor;
+        _selectedRowColor = selectedRowColor,
+        _applyVerticalDivider = applyVerticalDivider;
 
   late InternalTableSizeManager _tableSizeManager;
 
@@ -281,6 +291,17 @@ class InternalTableRenderBox extends RenderBox
     if (_selectedRowColor == value) return;
     _selectedRowColor = value;
     markNeedsPaint();
+  }
+
+  bool _applyVerticalDivider;
+
+  /// Gets whether a vertical divider should be applied.
+  bool get applyVerticalDivider => _applyVerticalDivider;
+
+  /// Sets whether a vertical divider should be applied.
+  set applyVerticalDivider(bool value) {
+    if (_applyVerticalDivider == value) return;
+    _applyVerticalDivider = value;
   }
 
   @override
@@ -566,6 +587,20 @@ class InternalTableRenderBox extends RenderBox
           _rightSectionBackgroundColorWhenScrolled,
           _shadowBlurWhenScrolled,
           false,
+        );
+      }
+
+      if (_applyVerticalDivider) {
+        final borderPath = Path()
+          ..moveTo(rect.right, rect.top)
+          ..lineTo(rect.right, rect.bottom);
+
+        context.canvas.drawPath(
+          borderPath,
+          Paint()
+            ..color = _dividerColor
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = _dividerWidth,
         );
       }
 

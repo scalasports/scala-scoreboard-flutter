@@ -49,6 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Scoreboard(
                     rightSectionBackgroundColorWhenScrolled: const Color.fromRGBO(250, 250, 250, 1),
+                    applyVerticalDivider: true,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [

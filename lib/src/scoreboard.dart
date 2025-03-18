@@ -26,6 +26,7 @@ class Scoreboard extends StatelessWidget {
     this.skipDividerForHeader = false,
     this.decoration,
     this.selectedRowColor = const Color.fromRGBO(247, 248, 250, 1),
+    this.applyVerticalDivider = false,
     super.key,
   });
 
@@ -101,6 +102,12 @@ class Scoreboard extends StatelessWidget {
   /// If null, a [BoxDecoration] with `borderRadius` set to 12 will be used.
   final BoxDecoration? decoration;
 
+  /// {@template scala_scoreboard.Scoreboard.applyVerticalDivider}
+  /// Determines whether to apply vertical dividers between columns.
+  /// Defaults to `false`.
+  /// {@endtemplate}
+  final bool applyVerticalDivider;
+
   @override
   Widget build(BuildContext context) {
     // We need the layout builder to determine the exact width of the table.
@@ -140,6 +147,7 @@ class Scoreboard extends StatelessWidget {
               skipDividerForHeader: skipDividerForHeader,
               selectedRowColor: selectedRowColor,
               selectedRowIndex: selectedRowIndex,
+              applyVerticalDivider: applyVerticalDivider,
               children: cells,
             ),
           );
