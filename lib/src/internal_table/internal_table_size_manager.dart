@@ -41,6 +41,12 @@ class InternalTableSizeManager {
   /// Gets the total number of rows that have been collected.
   int get numberOfRows => _maxRowHeights.length;
 
+  /// Gets the total number of columns that have been collected.
+  int get numberOfColumns => _maxColumnWidths.length;
+
+  /// Calculates the total width of all columns.
+  double get totalColumnWidth => _maxColumnWidths.fold(0, (sum, width) => sum + width);
+
   final List<double> _maxRowHeights = List.empty(growable: true);
   final List<double> _maxColumnWidths = List.empty(growable: true);
 
