@@ -497,6 +497,29 @@ class InternalTableRenderBox extends RenderBox
   }
 
   @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    RenderBox? child = firstChild;
+
+    while (child != null) {
+      final parentData = child.parentData as InternalTableCellParentData?;
+      if (parentData == null) continue;
+
+      final childHitTest = result.addWithPaintOffset(
+        offset: parentData.offset,
+        position: position,
+        hitTest: (result, offset) {
+          return child!.hitTest(result, position: offset);
+        },
+      );
+
+      if (childHitTest) return true;
+      child = childAfter(child);
+    }
+
+    return false;
+  }
+
+  @override
   void paint(PaintingContext context, Offset offset) {
     // For drawing, we separate a left container with fixed items, and a right container with scrollable items.
 
