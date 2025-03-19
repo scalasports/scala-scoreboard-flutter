@@ -27,6 +27,7 @@ class InternalTable extends MultiChildRenderObjectWidget {
     required this.skipDividerForHeader,
     required this.selectedRowIndex,
     required this.selectedRowColor,
+    required this.applyVerticalDivider,
     super.children,
   });
 
@@ -69,6 +70,11 @@ class InternalTable extends MultiChildRenderObjectWidget {
   /// {@macro scala_scoreboard.Scoreboard.selectedRowColor}
   final Color selectedRowColor;
 
+  /// {@template scala_scoreboard.Scoreboard.applyVerticalDivider}
+  /// Whether we should add a divider between the data column and definition.
+  /// {@endtemplate}
+  final bool applyVerticalDivider;
+
   @override
   InternalTableRenderBox createRenderObject(BuildContext context) {
     return InternalTableRenderBox(
@@ -84,6 +90,7 @@ class InternalTable extends MultiChildRenderObjectWidget {
       selectedRowColor: selectedRowColor,
       skipDividerForHeader: skipDividerForHeader,
       selectedRowIndex: selectedRowIndex,
+      applyVerticalDivider: applyVerticalDivider,
     );
   }
 
@@ -101,7 +108,8 @@ class InternalTable extends MultiChildRenderObjectWidget {
       ..dividerColor = dividerColor
       ..skipDividerForHeader = skipDividerForHeader
       ..selectedRowIndex = selectedRowIndex
-      ..selectedRowColor = selectedRowColor;
+      ..selectedRowColor = selectedRowColor
+      ..applyVerticalDivider = applyVerticalDivider;
     super.updateRenderObject(context, renderObject);
   }
 }
@@ -136,6 +144,7 @@ class InternalTableRenderBox extends RenderBox
     required Color selectedRowColor,
     required bool skipDividerForHeader,
     int? selectedRowIndex,
+    required bool applyVerticalDivider,
   })  : _outerConstraints = outerConstraints,
         _leftSectionBackgroundColor = leftSectionBackgroundColor,
         _rightSectionBackgroundColor = rightSectionBackgroundColor,
@@ -147,7 +156,8 @@ class InternalTableRenderBox extends RenderBox
         _dividerColor = dividerColor,
         _skipDividerForHeader = skipDividerForHeader,
         _selectedRowIndex = selectedRowIndex,
-        _selectedRowColor = selectedRowColor;
+        _selectedRowColor = selectedRowColor,
+        _applyVerticalDivider = applyVerticalDivider;
 
   late InternalTableSizeManager _tableSizeManager;
 
@@ -281,6 +291,17 @@ class InternalTableRenderBox extends RenderBox
     if (_selectedRowColor == value) return;
     _selectedRowColor = value;
     markNeedsPaint();
+  }
+
+  bool _applyVerticalDivider;
+
+  /// Gets whether a vertical divider should be applied.
+  bool get applyVerticalDivider => _applyVerticalDivider;
+
+  /// Sets whether a vertical divider should be applied.
+  set applyVerticalDivider(bool value) {
+    if (_applyVerticalDivider == value) return;
+    _applyVerticalDivider = value;
   }
 
   @override
@@ -420,10 +441,15 @@ class InternalTableRenderBox extends RenderBox
     startOffset = Offset.zero;
     currentColumnIndex = 0;
 
+    // If the sum of the column widths is smaller than the constrains.maxWidth we should allocate the difference extra space
+    // inside the player rows, we will call this the `underflow`.
+    final underflow = max(_outerConstraints.maxWidth - sizeManager.totalColumnWidth, 0);
+
     while (child != null) {
       final childParentData = child.parentData! as InternalTableCellParentData;
       final previousRowIndex = (previousChild?.parentData as InternalTableCellParentData?)?.rowIndex;
       final currentRowIndex = childParentData.rowIndex!;
+      final cellType = childParentData.cellType!;
 
       // Update the column index if necessary.
       updateColumnIndex(
@@ -431,11 +457,15 @@ class InternalTableRenderBox extends RenderBox
         currentRowIndex: currentRowIndex,
       );
 
+      // If the cellType is definition, we want to give back the underflow to the definition column.
+      var columnWidth = sizeManager.columnWidthForIndex(currentColumnIndex);
+      if (cellType == InternalTableCellType.definition) columnWidth += underflow;
+
       // Layout the cell in the UI, but this time with the width and height that are now known.
       layoutCell(
         child: child,
         cellType: childParentData.cellType!,
-        width: sizeManager.columnWidthForIndex(currentColumnIndex),
+        width: columnWidth,
         height: sizeManager.rowHeightForIndex(currentRowIndex),
       );
 
@@ -464,6 +494,29 @@ class InternalTableRenderBox extends RenderBox
             startOffset.dy + previousChild.size.height,
           )
         : Size.zero;
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    RenderBox? child = firstChild;
+
+    while (child != null) {
+      final parentData = child.parentData as InternalTableCellParentData?;
+      if (parentData == null) continue;
+
+      final childHitTest = result.addWithPaintOffset(
+        offset: parentData.offset,
+        position: position,
+        hitTest: (result, offset) {
+          return child!.hitTest(result, position: offset);
+        },
+      );
+
+      if (childHitTest) return true;
+      child = childAfter(child);
+    }
+
+    return false;
   }
 
   @override
@@ -557,6 +610,20 @@ class InternalTableRenderBox extends RenderBox
           _rightSectionBackgroundColorWhenScrolled,
           _shadowBlurWhenScrolled,
           false,
+        );
+      }
+
+      if (_applyVerticalDivider) {
+        final borderPath = Path()
+          ..moveTo(rect.right, rect.top)
+          ..lineTo(rect.right, rect.bottom);
+
+        context.canvas.drawPath(
+          borderPath,
+          Paint()
+            ..color = _dividerColor
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = _dividerWidth,
         );
       }
 
