@@ -1,4 +1,8 @@
-## 0.1
+## 0.1.1
+
+- Incorrect merge
+
+## 0.1.0
 
 - Fixed clickbehaviour
 - Added vertical divider between data and definition
