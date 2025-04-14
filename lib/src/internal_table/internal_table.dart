@@ -523,6 +523,9 @@ class InternalTableRenderBox extends RenderBox
   void paint(PaintingContext context, Offset offset) {
     // For drawing, we separate a left container with fixed items, and a right container with scrollable items.
 
+    // Determine whether, we have more size then available.
+    final canScroll = _tableSizeManager.totalColumnWidth > _outerConstraints.maxWidth;
+
     // Determine whether the widget is scrolled.
     final isScrolled = offset.dx < 0;
 
@@ -563,6 +566,14 @@ class InternalTableRenderBox extends RenderBox
         containerSize.height,
       );
 
+      // Use a gradient to show that more content is available.
+      final gradient = LinearGradient(
+        colors: [
+          Colors.white.withOpacity(0.1), // Semi-transparent grey for the fade
+          Colors.white.withOpacity(0.9),
+        ],
+      );
+
       // Draw the background.
       context.canvas.drawRect(
         containerRect,
@@ -595,6 +606,14 @@ class InternalTableRenderBox extends RenderBox
 
         // Note that we use the offset for the scrolling here.
         context.paintChild(child, offset + childParentData.offset);
+      }
+
+      if (!isScrolled && canScroll) {
+        final paint = Paint()..shader = gradient.createShader(containerRect);
+        context.canvas.drawRect(
+          containerRect,
+          paint,
+        );
       }
     }
 
