@@ -191,16 +191,11 @@ class ScoreboardCell extends StatelessWidget {
       style: textStyle ?? Theme.of(context).textTheme.labelMedium ?? const TextStyle(),
       child: Padding(
         padding: padding ?? const EdgeInsets.all(10),
-        child: GestureDetector(
-          onTap: () {
-            print('DID TAP!!');
-          },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: shouldCenter ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-            children: [child],
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: shouldCenter ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+          children: [child],
         ),
       ),
     );
