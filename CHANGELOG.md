@@ -1,3 +1,7 @@
+## 0.2.0
+
+- Added new fade functionality to indicate scroll ability 
+
 ## 0.1.1
 
 - Incorrect merge
