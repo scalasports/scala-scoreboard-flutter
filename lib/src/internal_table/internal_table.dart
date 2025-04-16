@@ -566,14 +566,6 @@ class InternalTableRenderBox extends RenderBox
         containerSize.height,
       );
 
-      // Use a gradient to show that more content is available.
-      final gradient = LinearGradient(
-        colors: [
-          Colors.white.withOpacity(0.1), // Semi-transparent grey for the fade
-          Colors.white.withOpacity(0.9),
-        ],
-      );
-
       // Draw the background.
       context.canvas.drawRect(
         containerRect,
@@ -606,14 +598,30 @@ class InternalTableRenderBox extends RenderBox
 
         // Note that we use the offset for the scrolling here.
         context.paintChild(child, offset + childParentData.offset);
-      }
 
-      if (!isScrolled && canScroll) {
-        final paint = Paint()..shader = gradient.createShader(containerRect);
-        context.canvas.drawRect(
-          containerRect,
-          paint,
-        );
+        final nextSiblingParentData = childParentData.nextSibling?.parentData;
+        if (nextSiblingParentData != null &&
+            nextSiblingParentData is InternalTableCellParentData &&
+            nextSiblingParentData.rowIndex == childParentData.rowIndex &&
+            childParentData.offset.dx < outerConstraints.maxWidth &&
+            nextSiblingParentData.offset.dx > outerConstraints.maxWidth) {
+          final childRect = childParentData.offset & child.size;
+          final gradientColor = isSelectedRow ? _selectedRowColor : Colors.white;
+
+          // Use a gradient to show that more content is available.
+          final gradient = LinearGradient(
+            begin: Alignment.centerRight,
+            end: Alignment.centerLeft,
+            colors: [
+              gradientColor.withOpacity(0.68), // More intense semi-transparent grey for the fade
+              gradientColor.withOpacity(1),
+            ],
+          );
+
+          final paint = Paint()
+            ..shader = gradient.createShader(childRect);
+          context.canvas.drawRect(childRect, paint);
+        }
       }
     }
 
