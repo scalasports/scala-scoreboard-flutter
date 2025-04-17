@@ -119,6 +119,7 @@ class Scoreboard extends StatelessWidget {
           // Combine the header and rows into a single list of table cells.
           final cells = [...header.toInternalCells(rowIndex: 0)];
 
+
           int? selectedRowIndex;
 
           for (var index = 0; index < rows.length; index++) {
@@ -138,7 +139,7 @@ class Scoreboard extends StatelessWidget {
               leftSectionBackgroundColor: leftSectionBackgroundColor ?? Colors.white,
               rightSectionBackgroundColor: rightSectionBackgroundColor ?? Colors.white,
               rightSectionBackgroundColorWhenScrolled:
-                  rightSectionBackgroundColorWhenScrolled ?? rightSectionBackgroundColor ?? Colors.white,
+              rightSectionBackgroundColorWhenScrolled ?? rightSectionBackgroundColor ?? Colors.white,
               applyShadowWhenScrolled: applyShadowWhenScrolled,
               shadowColorWhenScrolled: shadowColorWhenScrolled,
               shadowBlurWhenScrolled: shadowBlurWhenScrolled,
