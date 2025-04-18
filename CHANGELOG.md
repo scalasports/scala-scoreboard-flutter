@@ -1,3 +1,7 @@
+## 0.2.1
+
+- Sometimes fade did not appear
+
 ## 0.2.0
 
 - Added new fade functionality to indicate scroll ability 

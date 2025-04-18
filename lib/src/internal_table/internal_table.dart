@@ -522,10 +522,6 @@ class InternalTableRenderBox extends RenderBox
   @override
   void paint(PaintingContext context, Offset offset) {
     // For drawing, we separate a left container with fixed items, and a right container with scrollable items.
-
-    // Determine whether, we have more size then available.
-    final canScroll = _tableSizeManager.totalColumnWidth > _outerConstraints.maxWidth;
-
     // Determine whether the widget is scrolled.
     final isScrolled = offset.dx < 0;
 
