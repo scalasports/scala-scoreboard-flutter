@@ -522,10 +522,6 @@ class InternalTableRenderBox extends RenderBox
   @override
   void paint(PaintingContext context, Offset offset) {
     // For drawing, we separate a left container with fixed items, and a right container with scrollable items.
-
-    // Determine whether, we have more size then available.
-    final canScroll = _tableSizeManager.totalColumnWidth > _outerConstraints.maxWidth;
-
     // Determine whether the widget is scrolled.
     final isScrolled = offset.dx < 0;
 
@@ -599,13 +595,19 @@ class InternalTableRenderBox extends RenderBox
         // Note that we use the offset for the scrolling here.
         context.paintChild(child, offset + childParentData.offset);
 
-        final nextSiblingParentData = childParentData.nextSibling?.parentData;
-        if (nextSiblingParentData != null &&
-            nextSiblingParentData is InternalTableCellParentData &&
-            nextSiblingParentData.rowIndex == childParentData.rowIndex &&
-            childParentData.offset.dx < outerConstraints.maxWidth &&
-            nextSiblingParentData.offset.dx > outerConstraints.maxWidth) {
-          final childRect = childParentData.offset & child.size;
+        final currentEndX = childParentData.offset.dx + child.size.width / 2;
+
+        double? getNextEndX() {
+          final nextSibling = childParentData.nextSibling;
+          final nextSiblingParentData = nextSibling?.parentData;
+          if (nextSiblingParentData == null || nextSibling == null || nextSiblingParentData is! InternalTableCellParentData) return null;
+          return nextSiblingParentData.offset.dx + nextSibling.size.width / 2;
+        }
+
+        final nextEndX = getNextEndX() ?? 0;
+
+        if ((currentEndX > _outerConstraints.maxWidth || nextEndX > _outerConstraints.maxWidth) && !isScrolled) {
+          final childRect = offset + childParentData.offset & child.size;
           final gradientColor = isSelectedRow ? _selectedRowColor : Colors.white;
 
           // Use a gradient to show that more content is available.
@@ -618,8 +620,7 @@ class InternalTableRenderBox extends RenderBox
             ],
           );
 
-          final paint = Paint()
-            ..shader = gradient.createShader(childRect);
+          final paint = Paint()..shader = gradient.createShader(childRect);
           context.canvas.drawRect(childRect, paint);
         }
       }
